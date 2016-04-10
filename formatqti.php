@@ -72,7 +72,7 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
                     $this->process_matching($question, $questions);
                     break;
                 case "Multiple Choice":
-                    echo "MC";
+                    //echo "MC";
                     $this->process_mc($question, $questions);
                     break;
                 case "Essay":
@@ -85,7 +85,7 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
                     $this->process_tf($question, $questions);
                     break;
                 case 'Fill in the Blank':
-                    echo "FIB";
+                    //echo "FIB";
                     $this->process_fblank($question, $questions);
                     break;
                 case 'Short Response':
@@ -263,7 +263,7 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
         $curtype = $this->getpath($curblock,
                 array('@', 'class'),
                 '', true);
-        echo $curtype;
+        //echo $curtype;
         switch($curtype) {
             case 'FORMATTED_TEXT_BLOCK':
             //print_object($curblock);
@@ -291,11 +291,11 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
             //    print_object($block->filename);
                 if ($block->filename != '') {
                     // TODO : determine what to do with the file's content.
-                    echo "fOUND fILE";
+                    //echo "fOUND fILE";
                     //echo $this->filebase;
                     //$imgstring = file_get_contents($this->filebase.'/'.$quest->QUESTION_BLOCK->filename);
 
-                    $this->error(get_string('filenothandled', 'qformat_blackboard_socot', $block->filename));
+                    //$this->error(get_string('filenothandled', 'qformat_blackboard_socot', $block->filename));
                 }
                 break;
             case 'Block':
@@ -530,7 +530,7 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
      */
     public function process_common($quest) {
         //echo "process_common";
-        print_object($quest);
+        //print_object($quest);
         //echo "TempDir=".$this->tempdir;
         //echo "filebase".$this->filebase;
         //echo "imagename=".$quest->QUESTION_BLOCK->filename;
@@ -541,11 +541,11 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
         //process images that may be in question text
         $imgstring = base64_encode(file_get_contents($this->filebase.'/res00002/'.$quest->QUESTION_BLOCK->filename));
         $tag = '<br/><img src="data:image/png;base64, '.$imgstring.'">';
-        echo $tag;
+        //echo $tag;
         //process images that may be in incorrect feedback
         $incorrectimgstring = base64_encode(file_get_contents($this->filebase.'/res00002/'.$quest->feedback['incorrect']->filename));
         $incorrectimgtag = '<br/><img src="data:image/png;base64, '.$incorrectimgstring.'">';
-        echo $incorrectimgtag;
+        //echo $incorrectimgtag;
         $quest->feedback['incorrect']->text = $quest->feedback['incorrect']->text . $incorrectimgtag;
 
 
@@ -566,7 +566,7 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
         $question->generalfeedbackformat = FORMAT_HTML;
         $question->generalfeedbackfiles = array();
         //echo "between";
-        print_object($question);
+        //print_object($question);
 
         return $question;
     }
@@ -659,7 +659,7 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
         }
 
         ///convert smiles to mdlmol file format
-        print_object($answers);
+        //print_object($answers);
         
         foreach($answers as $key => $value){
      
@@ -675,7 +675,7 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
         $output = '';
         //echo $marvinjsconfig->obabelpath;
         //$command = escapeshellarg($marvinjsconfig->obabelpath . ' -imol -o' . $format . ' --title');
-        $command = $marvinjsconfig->obabelpath . ' -ican -o' . 'mol' . ' --title';
+        $command = $marvinjsconfig->obabelpath . ' -ismi -o' . 'mol' . ' --gen2d -d';
 
         $process = proc_open($command, $descriptorspec, $pipes);
         //print_object($process);
@@ -702,7 +702,7 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
            $answers[$key] = trim('MDL Molfile INSERTED\n'.$output); 
         }
 
-        print_object($answers);
+        //print_object($answers);
 
 
 

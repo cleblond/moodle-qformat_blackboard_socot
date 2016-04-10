@@ -116,7 +116,7 @@ class qformat_blackboard_socot extends qformat_blackboard_socot_base {
         $uniquecode = time();
         $this->tempdir = make_temp_directory('bbquiz_import/' . $uniquecode);
         $this->savedir = make_temp_directory('bbquiz_import/' . $uniquecode);
-        echo "tempdir=".$this->tempdir;
+        //echo "tempdir=".$this->tempdir;
         if (is_readable($filename)) {
             if (!copy($filename, $this->tempdir . '/bboard.zip')) {
                 $this->error(get_string('cannotcopybackup', 'question'));
