@@ -292,8 +292,8 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
                 if ($block->filename != '') {
                     // TODO : determine what to do with the file's content.
                     echo "fOUND fILE";
-                    echo $this->filebase;
-                    $imgstring = file_get_contents($this->filebase.'/'.$quest->QUESTION_BLOCK->filename);
+                    //echo $this->filebase;
+                    //$imgstring = file_get_contents($this->filebase.'/'.$quest->QUESTION_BLOCK->filename);
 
                     $this->error(get_string('filenothandled', 'qformat_blackboard_socot', $block->filename));
                 }
@@ -530,17 +530,29 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
      */
     public function process_common($quest) {
         //echo "process_common";
-        //print_object($quest);
+        print_object($quest);
         //echo "TempDir=".$this->tempdir;
         //echo "filebase".$this->filebase;
         //echo "imagename=".$quest->QUESTION_BLOCK->filename;
 
+        //var_dump(property_exists('myClass', 'mine'));
+
+
+        //process images that may be in question text
         $imgstring = base64_encode(file_get_contents($this->filebase.'/res00002/'.$quest->QUESTION_BLOCK->filename));
         $tag = '<br/><img src="data:image/png;base64, '.$imgstring.'">';
         echo $tag;
+        //process images that may be in incorrect feedback
+        $incorrectimgstring = base64_encode(file_get_contents($this->filebase.'/res00002/'.$quest->feedback['incorrect']->filename));
+        $incorrectimgtag = '<br/><img src="data:image/png;base64, '.$incorrectimgstring.'">';
+        echo $incorrectimgtag;
+        $quest->feedback['incorrect']->text = $quest->feedback['incorrect']->text . $incorrectimgtag;
+
+
 
         $question = $this->defaultquestion();
         $text = $quest->QUESTION_BLOCK->text . $tag;
+
         
         $questiontext = $this->cleaned_text_field($text);
         $question->questiontext = $questiontext['text'];
@@ -554,7 +566,7 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
         $question->generalfeedbackformat = FORMAT_HTML;
         $question->generalfeedbackfiles = array();
         //echo "between";
-        //print_object($question);
+        print_object($question);
 
         return $question;
     }
@@ -645,6 +657,54 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
 
             }
         }
+
+        ///convert smiles to mdlmol file format
+        print_object($answers);
+        
+        foreach($answers as $key => $value){
+     
+           //echo($value.'XXXXX');    // Value1, Value2, Value10
+           //$newv = $value . 'XXXXXX';
+
+        $marvinjsconfig = get_config('qtype_easyonamejs_options');
+        $descriptorspec = array(
+           0 => array("pipe", "r"),  // Stdin is a pipe that the child will read from.
+           1 => array("pipe", "w"),  // Stdout is a pipe that the child will write to.
+           2 => array("pipe", "r") // Stderr is a file to write to.
+        );
+        $output = '';
+        //echo $marvinjsconfig->obabelpath;
+        //$command = escapeshellarg($marvinjsconfig->obabelpath . ' -imol -o' . $format . ' --title');
+        $command = $marvinjsconfig->obabelpath . ' -ican -o' . 'mol' . ' --title';
+
+        $process = proc_open($command, $descriptorspec, $pipes);
+        //print_object($process);
+        if (is_resource($process)) {
+            /* 0 => writeable handle connected to child stdin
+               1 => readable handle connected to child stdout
+               2 +> errors */
+            //print_object($pipes);
+            fwrite($pipes[0], $value);
+            fclose($pipes[0]);
+            $output = stream_get_contents($pipes[1]);
+            fclose($pipes[1]);
+
+            $err = stream_get_contents($pipes[2]);
+            fclose($pipes[2]);
+            //echo $output;
+            //echo $err;
+            // It is important that you close any pipes before calling,
+            // proc_close in order to avoid a deadlock.
+            $returnvalue = proc_close($process);
+        }
+
+
+           $answers[$key] = trim('MDL Molfile INSERTED\n'.$output); 
+        }
+
+        print_object($answers);
+
+
 
         // Adding catchall to so that students can see feedback for incorrect answers when they enter something,
         // the instructor did not enter.
