@@ -43,6 +43,7 @@ class qformat_blackboard_socot_file {
     public $text;
     /** @var string path to path to root of image tree in unzipped archive. */
     public $filebase = '';
+    public $savedir = '';
 }
 
 /**
@@ -114,10 +115,12 @@ class qformat_blackboard_socot extends qformat_blackboard_socot_base {
         // Create name for temporary directory.
         $uniquecode = time();
         $this->tempdir = make_temp_directory('bbquiz_import/' . $uniquecode);
+        $this->savedir = make_temp_directory('bbquiz_import/' . $uniquecode);
+        echo "tempdir=".$this->tempdir;
         if (is_readable($filename)) {
             if (!copy($filename, $this->tempdir . '/bboard.zip')) {
                 $this->error(get_string('cannotcopybackup', 'question'));
-                fulldelete($this->tempdir);
+                //fulldelete($this->tempdir);
                 return false;
             }
             $packer = get_file_packer('application/zip');
@@ -126,7 +129,7 @@ class qformat_blackboard_socot extends qformat_blackboard_socot_base {
 
                 if (!$dom->load($this->tempdir . '/imsmanifest.xml')) {
                     $this->error(get_string('errormanifest', 'qformat_blackboard_socot'));
-                    fulldelete($this->tempdir);
+                    //fulldelete($this->tempdir);
                     return false;
                 }
 
@@ -166,15 +169,15 @@ class qformat_blackboard_socot extends qformat_blackboard_socot_base {
                     return $qfile;
                 } else {
                     $this->error(get_string('cannotfindquestionfile', 'question'));
-                    fulldelete($this->tempdir);
+                    //fulldelete($this->tempdir);
                 }
             } else {
                 $this->error(get_string('cannotunzip', 'question'));
-                fulldelete($this->temp_dir);
+                //fulldelete($this->temp_dir);
             }
         } else {
             $this->error(get_string('cannotreaduploadfile', 'error'));
-            fulldelete($this->tempdir);
+            //fulldelete($this->tempdir);
         }
         return false;
     }

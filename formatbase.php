@@ -72,7 +72,7 @@ class qformat_blackboard_socot_base extends qformat_based_on_xml {
      */
     public function importpostprocess() {
         if ($this->tempdir != '') {
-            fulldelete($this->tempdir);
+            //fulldelete($this->tempdir);
         }
         return true;
     }
@@ -94,6 +94,7 @@ class qformat_blackboard_socot_base extends qformat_based_on_xml {
      */
     protected function store_file_for_text_field(&$text, $tempdir, $filepathinsidetempdir, $filename) {
         global $USER;
+        echo "store_file_for_text_field";
         $fs = get_file_storage();
         if (empty($text['itemid'])) {
             $text['itemid'] = file_get_unused_draft_itemid();
@@ -124,8 +125,11 @@ class qformat_blackboard_socot_base extends qformat_based_on_xml {
      */
     public function text_field($text) {
         $data = array();
+        echo "IN text_field";
         // Step one, find all file refs then add to array.
         preg_match_all('|<img[^>]+src="([^"]*)"|i', $text, $out); // Find all src refs.
+        //print_object($text);
+        //print_object($out);
         $filepaths = array();
         foreach ($out[1] as $path) {
             $fullpath = $this->filebase . '/' . $path;

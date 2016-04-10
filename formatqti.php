@@ -258,23 +258,43 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
      */
     public function process_block($curblock, $block) {
 
+        //print_object($curblock);
+
         $curtype = $this->getpath($curblock,
                 array('@', 'class'),
                 '', true);
-
+        echo $curtype;
         switch($curtype) {
             case 'FORMATTED_TEXT_BLOCK':
+            //print_object($curblock);
+            //print_object($block);
                 $text = $this->getpath($curblock,
                         array('#', 'material', 0, '#', 'mat_extension', 0, '#', 'mat_formattedtext', 0, '#'),
                         '', true);
                 $block->text = $this->strip_applet_tags_get_mathml($text);
                 break;
             case 'FILE_BLOCK':
+           // print_object($curblock);
+           // print_object($block);
                 $block->filename = $this->getpath($curblock,
-                        array('#', 'material', 0, '#'),
+                        array('#', 'material', 0, '#', 'matapplication', 0, '@', 'uri'),
                         '', true);
+
+
+/*                $block->filename = $this->getpath($curblock,
+                        array('#', 'material', 0, '#'),
+                        '', true);  */
+
+
+
+
+            //    print_object($block->filename);
                 if ($block->filename != '') {
                     // TODO : determine what to do with the file's content.
+                    echo "fOUND fILE";
+                    echo $this->filebase;
+                    $imgstring = file_get_contents($this->filebase.'/'.$quest->QUESTION_BLOCK->filename);
+
                     $this->error(get_string('filenothandled', 'qformat_blackboard_socot', $block->filename));
                 }
                 break;
@@ -509,8 +529,19 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
      * @return object Moodle question.
      */
     public function process_common($quest) {
+        //echo "process_common";
+        //print_object($quest);
+        //echo "TempDir=".$this->tempdir;
+        //echo "filebase".$this->filebase;
+        //echo "imagename=".$quest->QUESTION_BLOCK->filename;
+
+        $imgstring = base64_encode(file_get_contents($this->filebase.'/res00002/'.$quest->QUESTION_BLOCK->filename));
+        $tag = '<br/><img src="data:image/png;base64, '.$imgstring.'">';
+        echo $tag;
+
         $question = $this->defaultquestion();
-        $text = $quest->QUESTION_BLOCK->text;
+        $text = $quest->QUESTION_BLOCK->text . $tag;
+        
         $questiontext = $this->cleaned_text_field($text);
         $question->questiontext = $questiontext['text'];
         $question->questiontextformat = $questiontext['format']; // Needed because add_blank_combined_feedback uses it.
@@ -522,6 +553,8 @@ class qformat_blackboard_socot_qti extends qformat_blackboard_socot_base {
         $question->generalfeedback = '';
         $question->generalfeedbackformat = FORMAT_HTML;
         $question->generalfeedbackfiles = array();
+        //echo "between";
+        //print_object($question);
 
         return $question;
     }
